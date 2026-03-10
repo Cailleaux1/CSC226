@@ -1,0 +1,76 @@
+---
+title: "Linear Probing vs Chaining"
+output: html_document
+date: "2026-02-23"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE}
+#install.packages("ggplot2")
+library(ggplot2)
+```
+
+```{r include=FALSE}
+files <- list.files(pattern = "^load_.*\\.csv$")
+
+print(files)
+
+df_list <- lapply(files, read.csv)
+
+dat <- do.call(rbind, df_list)
+
+dat$m <- as.numeric(dat$m)
+dat$load_fac <- as.numeric(dat$load_fac)
+dat$lp_insert_avg <- as.numeric(dat$Linear_I_avg)
+dat$ch_insert_avg <- as.numeric(dat$Chain_I_avg)
+dat$lp_search_avg <- as.numeric(dat$Linear_S_avg)
+dat$ch_search_avg <- as.numeric(dat$Chain_S_avg)
+
+dat$load_fac_label <- factor(dat$load_fac)
+```
+
+```{r echo=FALSE}
+# insert time
+ggplot(dat, aes(x = m)) +
+  geom_line(aes(y = lp_insert_avg, colour = "Linear Probing")) +
+  geom_line(aes(y = ch_insert_avg, colour = "Chaining")) +
+  facet_wrap(~ load_fac_label, scales = "free_y") +
+  scale_color_manual(values = c(
+    "Linear Probing" = "red3",
+    "Chaining" = "green3"
+  )) +
+  labs(
+    title = "Average Insert Time vs Table Size",
+    x = "Table size (m)",
+    y = "Average insert time (seconds)",
+    colour = "Type"
+  ) +
+  theme_dark()+ 
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("insert_plot.png")
+
+```
+
+```{r echo=FALSE}
+#search time
+ggplot(dat, aes(x = m)) +
+  geom_line(aes(y = lp_search_avg, colour = "Linear Probing")) +
+  geom_line(aes(y = ch_search_avg, colour = "Chaining")) +
+  facet_wrap(~ load_fac_label, scales = "free_y") +
+  scale_color_manual(values = c(
+    "Linear Probing" = "red3",
+    "Chaining" = "green3"
+  )) +
+  labs(
+    title = "Average Search Time vs Table Size",
+    x = "Table size (m)",
+    y = "Average search time (seconds)",
+    colour = "Type"
+  ) +
+  theme_dark()+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+ggsave("search_plot.png")
+```
